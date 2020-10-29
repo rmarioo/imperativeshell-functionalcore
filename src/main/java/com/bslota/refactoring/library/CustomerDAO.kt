@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class CustomerDAO {
-    fun getPatronFromDatabase(customerid: Int): Customer {
+    fun getCustomerFromDatabase(customerid: Int): Customer {
         throw DatabaseNotChosenYetException()
     }
 

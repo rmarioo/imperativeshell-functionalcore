@@ -10,9 +10,9 @@ class BookService(
     private val customerDAO: CustomerDAO,
     private val emailService: NotificationSender
 ) {
-    fun placeOnHold(bookId: Int, patronId: Int, days: Int): Boolean {
+    fun placeOnHold(bookId: Int, customerId: Int, days: Int): Boolean {
         val book = bookDAO.getBookFromDatabase(bookId)
-        val customer = customerDAO.getPatronFromDatabase(patronId)
+        val customer = customerDAO.getCustomerFromDatabase(customerId)
         var flag = false
         if (book != null && customer != null) {
             if (customer.holds.size < 5) {
@@ -21,7 +21,7 @@ class BookService(
                     customer.holds.add(bookId)
                     book.reservationDate = Instant.now()
                     book.setReservationEndDate(Instant.now().plus(days.toLong(), ChronoUnit.DAYS))
-                    book.setPatronId(patronId)
+                    book.setPatronId(customerId)
                     bookDAO.update(book)
                     customerDAO.update(customer)
                     flag = true
