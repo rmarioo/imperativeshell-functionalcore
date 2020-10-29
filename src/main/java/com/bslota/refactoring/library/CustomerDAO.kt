@@ -4,7 +4,7 @@ import com.bslota.refactoring.util.DatabaseNotChosenYetException
 import org.springframework.stereotype.Repository
 
 @Repository
-class PatronDAO {
+class CustomerDAO {
     fun getPatronFromDatabase(customerid: Int): Customer {
         throw DatabaseNotChosenYetException()
     }

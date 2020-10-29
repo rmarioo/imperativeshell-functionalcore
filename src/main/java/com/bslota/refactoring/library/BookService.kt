@@ -7,38 +7,38 @@ import java.time.temporal.ChronoUnit
 @Service
 class BookService(
     private val bookDAO: BookDAO,
-    private val patronDAO: PatronDAO,
+    private val customerDAO: CustomerDAO,
     private val emailService: NotificationSender
 ) {
     fun placeOnHold(bookId: Int, patronId: Int, days: Int): Boolean {
         val book = bookDAO.getBookFromDatabase(bookId)
-        val patron = patronDAO.getPatronFromDatabase(patronId)
+        val customer = customerDAO.getPatronFromDatabase(patronId)
         var flag = false
-        if (book != null && patron != null) {
-            if (patron.holds.size < 5) {
+        if (book != null && customer != null) {
+            if (customer.holds.size < 5) {
                 val reservationDate = book.reservationDate
                 if (reservationDate == null) {
-                    patron.holds.add(bookId)
+                    customer.holds.add(bookId)
                     book.reservationDate = Instant.now()
                     book.setReservationEndDate(Instant.now().plus(days.toLong(), ChronoUnit.DAYS))
                     book.setPatronId(patronId)
                     bookDAO.update(book)
-                    patronDAO.update(patron)
+                    customerDAO.update(customer)
                     flag = true
                 }
             }
         }
         if (flag) {
-            addLoyaltyPoints(patron)
+            addLoyaltyPoints(customer)
         }
-        if (flag && patron.isQualifiesForFreeBook) {
+        if (flag && customer.isQualifiesForFreeBook) {
             val title = "[REWARD] Free book waiting for you!"
             val body = """
                 Dear Sir/Madame, 
-                we are pleased to inform you, that the number of loyalty points you have gathered is ${patron.points}. 
+                we are pleased to inform you, that the number of loyalty points you have gathered is ${customer.points}. 
                 It means we have a reward for you! A free book is waiting at your local library branch!
                 """.trimIndent()
-            val email = patron.email
+            val email = customer.email
             emailService.sendMail(arrayOf(email), "contact@your-library.com", title, body)
         }
         return flag
@@ -61,6 +61,6 @@ class BookService(
         if (customer.points > 10000) {
             customer.isQualifiesForFreeBook = true
         }
-        patronDAO.update(customer)
+        customerDAO.update(customer)
     }
 }
