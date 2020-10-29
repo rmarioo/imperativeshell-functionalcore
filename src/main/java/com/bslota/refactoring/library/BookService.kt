@@ -14,7 +14,22 @@ class BookService(
         val book = bookDAO.getBookFromDatabase(bookId)
         val customer = customerDAO.getCustomerFromDatabase(customerId)
 
-        var isReserved = reserveBookForCustomer(book, customer, bookId, days, customerId)
+        var flag = false
+        if (book != null && customer != null) {
+            if (customer.holds.size < 5) {
+                val reservationDate = book.reservationDate
+                if (reservationDate == null) {
+                    customer.holds.add(bookId)
+                    book.reservationDate = Instant.now()
+                    book.setReservationEndDate(Instant.now().plus(days.toLong(), ChronoUnit.DAYS))
+                    book.setPatronId(customerId)
+                    bookDAO.update(book)
+                    customerDAO.update(customer)
+                    flag = true
+                }
+            }
+        }
+        var isReserved = flag
         if (isReserved) {
             addLoyaltyPoints(customer)
         }
@@ -38,31 +53,6 @@ class BookService(
                     It means we have a reward for you! A free book is waiting at your local library branch!
                     """.trimIndent()
         return Pair(title, body)
-    }
-
-    private fun reserveBookForCustomer(
-        book: Book,
-        customer: Customer,
-        bookId: Int,
-        days: Int,
-        customerId: Int
-    ): Boolean {
-        var flag = false
-        if (book != null && customer != null) {
-            if (customer.holds.size < 5) {
-                val reservationDate = book.reservationDate
-                if (reservationDate == null) {
-                    customer.holds.add(bookId)
-                    book.reservationDate = Instant.now()
-                    book.setReservationEndDate(Instant.now().plus(days.toLong(), ChronoUnit.DAYS))
-                    book.setPatronId(customerId)
-                    bookDAO.update(book)
-                    customerDAO.update(customer)
-                    flag = true
-                }
-            }
-        }
-        return flag
     }
 
     private fun addLoyaltyPoints(customer: Customer) {
