@@ -1,6 +1,6 @@
 package com.bslota.refactoring.library
 
-class Patron {
+class Customer {
     var patronId = 0
     var type = 0
     var points = 0

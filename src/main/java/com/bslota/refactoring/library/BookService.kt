@@ -44,23 +44,23 @@ class BookService(
         return flag
     }
 
-    private fun addLoyaltyPoints(patron: Patron) {
-        when (patron.type) {
-            0 -> patron.points = patron.points + 1
-            1 -> patron.points = patron.points + 5
+    private fun addLoyaltyPoints(customer: Customer) {
+        when (customer.type) {
+            0 -> customer.points = customer.points + 1
+            1 -> customer.points = customer.points + 5
             2 -> {
-                val newPoints: Int = if (patron.points == 0) {
+                val newPoints: Int = if (customer.points == 0) {
                     100
                 } else {
-                    patron.points * 2
+                    customer.points * 2
                 }
-                patron.points = newPoints
+                customer.points = newPoints
             }
             else -> { }
         }
-        if (patron.points > 10000) {
-            patron.isQualifiesForFreeBook = true
+        if (customer.points > 10000) {
+            customer.isQualifiesForFreeBook = true
         }
-        patronDAO.update(patron)
+        patronDAO.update(customer)
     }
 }

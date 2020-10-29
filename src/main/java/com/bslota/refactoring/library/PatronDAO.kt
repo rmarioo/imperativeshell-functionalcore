@@ -5,9 +5,9 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class PatronDAO {
-    fun getPatronFromDatabase(patronId: Int): Patron {
+    fun getPatronFromDatabase(customerid: Int): Customer {
         throw DatabaseNotChosenYetException()
     }
 
-    fun update(patron: Patron?) {}
+    fun update(customer: Customer?) {}
 }
