@@ -11,7 +11,13 @@ import org.springframework.util.StringUtils
 class NotificationSender {
     @Autowired
     private val javaMailSender: JavaMailSender? = null
-    fun sendMail(recipients: Array<String?>?, from: String?, subject: String?, content: String?) {
+    data class Email(val recipients: Array<String?>?,val from: String?,val subject: String?,val content: String?)
+
+    fun sendMail(
+        email: Email
+    ) {
+
+        val (recipients, from, subject, content) = email
         val mimeMessage = javaMailSender!!.createMimeMessage()
         val messageHelper = MimeMessageHelper(mimeMessage)
         try {

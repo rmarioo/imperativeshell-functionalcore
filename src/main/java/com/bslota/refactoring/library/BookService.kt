@@ -1,5 +1,6 @@
 package com.bslota.refactoring.library
 
+import com.bslota.refactoring.library.NotificationSender.Email
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -14,7 +15,7 @@ class BookService(
         val book = bookDAO.getBookFromDatabase(bookId)
         val customer = customerDAO.getCustomerFromDatabase(customerId)
 
-        var flag = false
+        var isReserved = false
         if (book != null && customer != null) {
             if (customer.holds.size < 5) {
                 val reservationDate = book.reservationDate
@@ -25,20 +26,26 @@ class BookService(
                     book.setPatronId(customerId)
                     bookDAO.update(book)
                     customerDAO.update(customer)
-                    flag = true
+                    isReserved = true
                 }
             }
         }
-        var isReserved = flag
         if (isReserved) {
             addLoyaltyPoints(customer)
         }
         if (canHaveAFreeBook(isReserved, customer)) {
-            val (title, body) = createEmailTitleAndText(customer.points)
-            emailService.sendMail(arrayOf(customer.email), "contact@your-library.com", title, body)
+            val email = createEmail(customer.points, customer.email)
+            emailService.sendMail(email)
         }
         return isReserved
     }
+
+    private fun createEmail(points: Int, emailAddress: String?): Email {
+        val (title, body) = createEmailTitleAndText(points)
+        val email = Email(arrayOf(emailAddress), "contact@your-library.com", title, body)
+        return email
+    }
+
 
     private fun canHaveAFreeBook(
         isReserved: Boolean,
