@@ -1,14 +1,13 @@
-package com.bslota.refactoring.library;
+package com.bslota.refactoring.library
 
-import com.bslota.refactoring.util.DatabaseNotChosenYetException;
-import org.springframework.stereotype.Repository;
+import com.bslota.refactoring.util.DatabaseNotChosenYetException
+import org.springframework.stereotype.Repository
 
 @Repository
-public class PatronDAO {
-    public Patron getPatronFromDatabase(int patronId) {
-        throw new DatabaseNotChosenYetException();
+class PatronDAO {
+    fun getPatronFromDatabase(patronId: Int): Patron {
+        throw DatabaseNotChosenYetException()
     }
 
-    public void update(Patron patron) {
-    }
+    fun update(patron: Patron?) {}
 }

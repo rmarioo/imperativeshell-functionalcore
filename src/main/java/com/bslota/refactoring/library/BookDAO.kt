@@ -1,14 +1,13 @@
-package com.bslota.refactoring.library;
+package com.bslota.refactoring.library
 
-import com.bslota.refactoring.util.DatabaseNotChosenYetException;
-import org.springframework.stereotype.Repository;
+import com.bslota.refactoring.util.DatabaseNotChosenYetException
+import org.springframework.stereotype.Repository
 
 @Repository
-public class BookDAO {
-    public Book getBookFromDatabase(int bookId) {
-        throw new DatabaseNotChosenYetException();
+class BookDAO {
+    fun getBookFromDatabase(bookId: Int): Book {
+        throw DatabaseNotChosenYetException()
     }
 
-    public void update(Book book) {
-    }
+    fun update(book: Book?) {}
 }
