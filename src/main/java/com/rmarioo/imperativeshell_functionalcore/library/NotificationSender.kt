@@ -1,4 +1,4 @@
-package com.bslota.refactoring.library
+package com.rmarioo.imperativeshell_functionalcore.library
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils
 
 @Service
-class NotificationSender {
+open class NotificationSender {
     @Autowired
     private val javaMailSender: JavaMailSender? = null
-    data class Email(val recipients: Array<String?>?,val from: String?,val subject: String?,val content: String?)
+    data class Email(val recipients: Array<String?>?= null,val from: String?="",val subject: String?="",val content: String?="")
 
-    fun sendMail(
+    open fun sendMail(
         email: Email
     ) {
 

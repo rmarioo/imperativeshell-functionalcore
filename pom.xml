@@ -8,11 +8,11 @@
         <version>2.2.0.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.bslota</groupId>
-    <artifactId>refactoring</artifactId>
+    <groupId>com.rmarioo</groupId>
+    <artifactId>isfc</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>refactoring</name>
-    <description>Demo project for refactoring to solid code</description>
+    <name>isfc</name>
+    <description>Demo project for imperative shell functional core</description>
 
     <properties>
         <java.version>1.8</java.version>
@@ -56,6 +56,8 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+
+
     </dependencies>
 
     <build>

@@ -1,4 +1,4 @@
-package com.bslota.refactoring.util;
+package com.rmarioo.imperativeshell_functionalcore.util;
 
 public class DatabaseNotChosenYetException extends RuntimeException {
 }

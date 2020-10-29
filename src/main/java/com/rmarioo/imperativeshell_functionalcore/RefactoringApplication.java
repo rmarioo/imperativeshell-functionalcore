@@ -1,4 +1,4 @@
-package com.bslota.refactoring;
+package com.rmarioo.imperativeshell_functionalcore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
