@@ -11,7 +11,7 @@
     <groupId>com.rmarioo</groupId>
     <artifactId>isfc</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>refactoring</name>
+    <name>isfc</name>
     <description>Demo project for imperative shell functional core</description>
 
     <properties>
