@@ -1,6 +1,6 @@
-package com.bslota.refactoring.library
+package com.rmarioo.imperativeshell_functionalcore.library
 
-import com.bslota.refactoring.library.NotificationSender.Email
+import com.rmarioo.imperativeshell_functionalcore.library.NotificationSender.Email
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit

@@ -1,6 +1,6 @@
-package com.bslota.refactoring.library
+package com.rmarioo.imperativeshell_functionalcore.library
 
-import com.bslota.refactoring.util.DatabaseNotChosenYetException
+import com.rmarioo.imperativeshell_functionalcore.util.DatabaseNotChosenYetException
 import org.springframework.stereotype.Repository
 
 @Repository

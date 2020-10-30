@@ -1,4 +1,4 @@
-package com.bslota.refactoring.library
+package com.rmarioo.imperativeshell_functionalcore.library
 
 import java.time.Instant
 

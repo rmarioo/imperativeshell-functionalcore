@@ -1,4 +1,4 @@
-package com.bslota.refactoring.library
+package com.rmarioo.imperativeshell_functionalcore.library
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
