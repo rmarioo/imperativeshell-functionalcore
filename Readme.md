@@ -6,7 +6,8 @@ Original source code take is from Bartłomiej Słota https://github.com/bslota/r
  translated to kotlin
  
  
-The code is refactored in branch  kotlin_functional_core to apply Imperative Shell / Functional
+The code in class BookServiceShell is refactored in branch  kotlin_functional_core to apply Imperative Shell
+ / Functional
  core pattern
  
 Some notes:   
