@@ -7,10 +7,8 @@ import java.util.Optional
 
 sealed class BookOnHoldResult
 
-class BookOnHoldApproved() :   BookOnHoldResult() {
+data class BookOnHoldApproved(val bookToUpdate: Book,val customerToUpdate: Customer) :   BookOnHoldResult() {
         var emailToNotify: Optional<NotificationSender.Email> = Optional.empty()
-        lateinit var customerToUpdate: Customer
-        lateinit var bookToUpdate: Book
     }
 object BookOnHoldRejected :      BookOnHoldResult()
 
@@ -37,10 +35,7 @@ fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
                 book.reservationDate = Instant.now()
                 book.reservationEndDate = Instant.now().plus(days.toLong(), ChronoUnit.DAYS)
                 book.patronId = customer.patronId
-                val resultWithEffects: BookOnHoldApproved = BookOnHoldApproved()
-                resultWithEffects.apply { bookToUpdate = book }
-                                 .apply { customerToUpdate = customer }
-                optionalBookOnHoldApproved = Optional.of(resultWithEffects)
+                optionalBookOnHoldApproved = Optional.of(BookOnHoldApproved(book,customer))
                 isReserved = true
                 addLoyaltyPoints(customer)
             }
@@ -49,7 +44,7 @@ fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
 
     if (canHaveAFreeBook(isReserved, customer)) {
         val email = createEmail(customer.points, customer.email)
-        optionalBookOnHoldApproved.map { r -> r.apply { emailToNotify = Optional.of(email) } }
+        optionalBookOnHoldApproved.map { bookOnHoldApproved -> bookOnHoldApproved.apply { emailToNotify = Optional.of(email) } }
 
     }
 

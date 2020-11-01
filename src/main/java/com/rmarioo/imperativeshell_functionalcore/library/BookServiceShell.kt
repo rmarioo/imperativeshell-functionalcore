@@ -13,24 +13,20 @@ class BookServiceShell(
         val book = bookDAO.getBookFromDatabase(bookId)
         val customer = customerDAO.getCustomerFromDatabase(customerId)
 
-
         val result: BookOnHoldResult = coreFunctionWithEffectsDescription(PlaceOnHoldRequest(book, customer, days))
 
         return when(result) {
-            is BookOnHoldApproved -> {
-                bookDAO.update(result.bookToUpdate)
-                customerDAO.update(result.customerToUpdate)
-                result.emailToNotify.map { email -> emailService.sendMail(email) }
-                true
-            }
+            is BookOnHoldApproved -> { executeSideEffects(result); true }
             is BookOnHoldRejected -> false
         }
 
     }
 
-
-
-
+    private fun executeSideEffects(result: BookOnHoldApproved) {
+        bookDAO.update(result.bookToUpdate)
+        customerDAO.update(result.customerToUpdate)
+        result.emailToNotify.map { email -> emailService.sendMail(email) }
+    }
 
 
 }

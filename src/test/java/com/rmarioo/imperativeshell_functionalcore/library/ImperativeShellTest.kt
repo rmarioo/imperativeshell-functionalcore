@@ -14,8 +14,7 @@ class BookServiceShellTest {
     fun `all side effects are executed`() {
 
         val functionalCore = { _: PlaceOnHoldRequest ->
-            BookOnHoldApproved().apply { bookToUpdate = Book(bookId = 1)  }
-                                .apply { customerToUpdate = Customer(patronId = 2) }
+            BookOnHoldApproved(Book(bookId = 1),Customer(patronId = 2))
                                 .apply { emailToNotify = Optional.of(Email(subject = "emailToUpdate")) }
 
         }
