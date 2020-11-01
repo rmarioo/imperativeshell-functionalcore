@@ -28,7 +28,7 @@ fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
     val (book, customer, days) = placeOnHoldRequest
     var isReserved = false
 
-    var optionalBookOnHoldApproved: Optional<BookOnHoldApproved> = Optional.empty();
+    var optionalBookOnHoldApproved: Optional<BookOnHoldApproved> = Optional.empty()
     if (book != null && customer != null) {
         if (customer.holds.size < 5) {
             val reservationDate = book.reservationDate
