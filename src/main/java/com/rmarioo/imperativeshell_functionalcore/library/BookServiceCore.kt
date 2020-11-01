@@ -4,52 +4,56 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Optional
 
-data class ResultWithEffectsDescription(
-    var isReserved: Boolean = false,
 
-    var bookToUpdate: Optional<Book> = Optional.empty(),
-    var customerToUpdate: Optional<Customer> = Optional.empty(),
-    var customerToUpdateForLoyaltyPoints: Optional<Customer> =Optional.empty(),
-    var emailToNotify:  Optional<NotificationSender.Email> =Optional.empty()
-)
+sealed class BookOnHoldResult
+
+class BookOnHoldApproved() :   BookOnHoldResult() {
+        var emailToNotify: Optional<NotificationSender.Email> = Optional.empty()
+        lateinit var customerToUpdate: Customer
+        lateinit var bookToUpdate: Book
+    }
+object BookOnHoldRejected :      BookOnHoldResult()
+
+
+
 data class PlaceOnHoldRequest(
-    val book: Book?= Book(),
+    val book: Book? = Book(),
     val customer: Customer = Customer(),
-    val days: Int=1
+    val days: Int = 1
 )
 
-fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): ResultWithEffectsDescription {
+fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
 
-    val placeOnHoldResult = ResultWithEffectsDescription()
     val (book, customer, days) = placeOnHoldRequest
     var isReserved = false
 
+    var optionalBookOnHoldApproved : Optional<BookOnHoldApproved> = Optional.empty();
     if (book != null && customer != null) {
         if (customer.holds.size < 5) {
             val reservationDate = book.reservationDate
             if (reservationDate == null) {
+
                 customer.holds.add(book.bookId)
                 book.reservationDate = Instant.now()
                 book.reservationEndDate = Instant.now().plus(days.toLong(), ChronoUnit.DAYS)
                 book.patronId = customer.patronId
-                placeOnHoldResult.bookToUpdate = Optional.of(book)
-                placeOnHoldResult.customerToUpdate = Optional.of(customer)
+                val resultWithEffects: BookOnHoldApproved = BookOnHoldApproved()
+                resultWithEffects.apply { bookToUpdate = book }
+                                 .apply { customerToUpdate = customer }
+                optionalBookOnHoldApproved = Optional.of(resultWithEffects)
                 isReserved = true
+                addLoyaltyPoints(customer)
             }
         }
     }
-    if (isReserved) {
-        addLoyaltyPoints(customer)
-        placeOnHoldResult.customerToUpdateForLoyaltyPoints = Optional.of(customer)
-    }
+
     if (canHaveAFreeBook(isReserved, customer)) {
         val email = createEmail(customer.points, customer.email)
-        placeOnHoldResult.emailToNotify = Optional.of(email)
+        optionalBookOnHoldApproved.map { r -> r.apply { emailToNotify = Optional.of(email) } }
+
     }
 
-    placeOnHoldResult.isReserved = isReserved
-
-    return placeOnHoldResult
+    return if (optionalBookOnHoldApproved.isPresent) optionalBookOnHoldApproved.get() else BookOnHoldRejected
 }
 
 private fun createEmail(points: Int, emailAddress: String?): NotificationSender.Email {

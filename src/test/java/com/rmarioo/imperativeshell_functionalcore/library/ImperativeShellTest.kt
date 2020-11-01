@@ -14,13 +14,10 @@ class BookServiceShellTest {
     fun `all side effects are executed`() {
 
         val functionalCore = { _: PlaceOnHoldRequest ->
-            ResultWithEffectsDescription(
-                true,
-                Optional.of(Book(bookId = 1)),
-                Optional.of(Customer(patronId = 2)),
-                Optional.of(Customer(patronId = 3)),
-                Optional.of(Email(subject = "emailToUpdate"))
-            )
+            BookOnHoldApproved().apply { bookToUpdate = Book(bookId = 1)  }
+                                .apply { customerToUpdate = Customer(patronId = 2) }
+                                .apply { emailToNotify = Optional.of(Email(subject = "emailToUpdate")) }
+
         }
 
 
@@ -32,10 +29,7 @@ class BookServiceShellTest {
         assertEquals(true, isReserved)
 
         assertThat(spyBookDAO.updatedBooks).isEqualTo(listOf(Book(bookId = 1)))
-        assertThat(spyCustomerDao.updatedCustomers).isEqualTo(listOf(
-            Customer(patronId = 2),
-            Customer(patronId = 3)
-        ))
+        assertThat(spyCustomerDao.updatedCustomers).isEqualTo(listOf(Customer(patronId = 2)))
         assertThat(spyEmailService.notifiedEmail).isEqualTo(Email(subject = "emailToUpdate"))
 
     }

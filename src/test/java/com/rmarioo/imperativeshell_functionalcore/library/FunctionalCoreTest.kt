@@ -11,9 +11,9 @@ class FunctionalCoreTest {
 
         val placeOnHoldRequest = PlaceOnHoldRequest(book = null)
 
-        val (isReserved) = placeOnHoldCore(placeOnHoldRequest)
+        val result = placeOnHoldCore(placeOnHoldRequest)
 
-        assertThat(isReserved).isFalse
+        assertThat(result is BookOnHoldRejected)
     }
 
     @Test
@@ -22,9 +22,10 @@ class FunctionalCoreTest {
         val placeOnHoldRequest =
             PlaceOnHoldRequest(customer = Customer(holds = mutableListOf(1, 2, 3, 4, 5, 6)))
 
-        val (isReserved) = placeOnHoldCore(placeOnHoldRequest)
+        val result = placeOnHoldCore(placeOnHoldRequest)
 
-        assertThat(isReserved).isFalse
+
+        assertThat(result is BookOnHoldRejected)
     }
 
     @Test
@@ -32,28 +33,21 @@ class FunctionalCoreTest {
 
         val placeOnHoldRequest = PlaceOnHoldRequest(book = Book(reservationDate = Instant.now()))
 
-        val (isReserved) = placeOnHoldCore(placeOnHoldRequest)
+        val result = placeOnHoldCore(placeOnHoldRequest)
 
-        assertThat(isReserved).isFalse
+        assertThat(result is BookOnHoldRejected)
     }
 
     @Test
     fun `reservation is ok but no notification for free book sent`() {
 
-        val (isReserved,
-            updateBook,
-            updateCustomer,
-            updateCustomerLoyaltyPoints,
-            sendEmail) = placeOnHoldCore(
-            PlaceOnHoldRequest(book = Book(reservationDate = null))
-        )
+        val result =
+            placeOnHoldCore(PlaceOnHoldRequest(book = Book(reservationDate = null)))
 
-        assertThat(isReserved).isTrue()
+        assertThat(result is BookOnHoldApproved)
 
-        assertThat(updateBook.isPresent).isTrue()
-        assertThat(updateCustomer.isPresent).isTrue()
-        assertThat(updateCustomerLoyaltyPoints.isPresent).isTrue()
-        assertThat(sendEmail.isPresent).`as`("notification not sent").isFalse()
+        val bookOnHoldApproved = result as BookOnHoldApproved
+        assertThat(bookOnHoldApproved.emailToNotify).`as`("notification not sent").isNotPresent
     }
 
 
@@ -63,17 +57,9 @@ class FunctionalCoreTest {
         val placeOnHoldRequest = PlaceOnHoldRequest(book = Book(reservationDate = null),
                                                     customer = Customer(isQualifiesForFreeBook = true)
         )
-        val (isReserved,
-            updateBook,
-            updateCustomer,
-            updateCustomerLoyaltyPoints,
-            sendEmail) = placeOnHoldCore(placeOnHoldRequest)
+        val result = placeOnHoldCore(placeOnHoldRequest)
 
-        assertThat(isReserved).isTrue()
-
-        assertThat(updateBook.isPresent).isTrue()
-        assertThat(updateCustomer.isPresent).isTrue()
-        assertThat(updateCustomerLoyaltyPoints.isPresent).isTrue()
-        assertThat(sendEmail.isPresent).`as`("notification is sent").isTrue()
+        val bookOnHoldApproved = result as BookOnHoldApproved
+        assertThat(bookOnHoldApproved.emailToNotify).`as`("notification not sent").isPresent
     }
 }
