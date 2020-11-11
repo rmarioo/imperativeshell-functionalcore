@@ -7,13 +7,9 @@ import java.util.Optional
 
 sealed class BookOnHoldResult
 
-data class BookOnHoldApproved(
-    val bookToUpdate: Book,
-    val customerToUpdate: Customer
-) : BookOnHoldResult() {
+data class BookOnHoldApproved(val bookToUpdate: Book, val customerToUpdate: Customer) : BookOnHoldResult() {
     var emailToNotify: Optional<NotificationSender.Email> = Optional.empty()
 }
-
 object BookOnHoldRejected : BookOnHoldResult()
 
 
@@ -28,7 +24,7 @@ fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
     val (book, customer, days) = placeOnHoldRequest
     var isReserved = false
 
-    var optionalBookOnHoldApproved: Optional<BookOnHoldApproved> = Optional.empty()
+    var result:BookOnHoldResult = BookOnHoldRejected
     if (book != null && customer != null) {
         if (customer.holds.size < 5) {
             val reservationDate = book.reservationDate
@@ -38,7 +34,7 @@ fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
                 book.reservationDate = Instant.now()
                 book.reservationEndDate = Instant.now().plus(days.toLong(), ChronoUnit.DAYS)
                 book.patronId = customer.patronId
-                optionalBookOnHoldApproved = Optional.of(BookOnHoldApproved(book, customer))
+                result = BookOnHoldApproved(book, customer)
                 isReserved = true
                 addLoyaltyPoints(customer)
             }
@@ -47,15 +43,14 @@ fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
 
     if (canHaveAFreeBook(isReserved, customer)) {
         val email = createEmail(customer.points, customer.email)
-        optionalBookOnHoldApproved.map { bookOnHoldApproved ->
-            bookOnHoldApproved.apply {
-                emailToNotify = Optional.of(email)
-            }
+        when(result) {
+            is BookOnHoldApproved -> result.emailToNotify = Optional.of(email)
+            is BookOnHoldRejected -> {}
         }
 
     }
 
-    return if (optionalBookOnHoldApproved.isPresent) optionalBookOnHoldApproved.get() else BookOnHoldRejected
+    return result
 }
 
 private fun createEmail(points: Int, emailAddress: String?): NotificationSender.Email {
