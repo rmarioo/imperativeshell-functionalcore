@@ -41,13 +41,33 @@ class FunctionalCoreTest {
     @Test
     fun `reservation is ok but no notification for free book sent`() {
 
+        val now = Instant.now()
+        val inputCustomer = Customer()
         val result =
-            placeOnHoldCore(PlaceOnHoldRequest(book = Book(reservationDate = null)))
+            placeOnHoldCore(PlaceOnHoldRequest(customer = inputCustomer,
+                book = Book(reservationDate = null),
+                now = now))
 
         assertThat(result is BookOnHoldApproved)
 
         val bookOnHoldApproved = result as BookOnHoldApproved
+
+        assertThat(bookOnHoldApproved.bookToUpdate.reservationDate).isEqualTo(now)
+        assertThat(bookOnHoldApproved.customerToUpdate).isEqualTo(inputCustomer.copy(points = 1))
         assertThat(bookOnHoldApproved.emailToNotify).`as`("notification not sent").isNotPresent
+    }
+
+    @Test
+    fun `reservation is pure function it returns the same result if called multiple times with same input `() {
+
+        val now = Instant.now()
+        val request = PlaceOnHoldRequest(book = Book(reservationDate = null), now = now)
+
+        val r1 = placeOnHoldCore(request) as BookOnHoldApproved
+
+        val r2 = placeOnHoldCore(request) as BookOnHoldApproved
+
+        assertThat(r1).isEqualTo(r2)
     }
 
 

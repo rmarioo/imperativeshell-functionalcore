@@ -16,13 +16,16 @@ object BookOnHoldRejected : BookOnHoldResult()
 data class PlaceOnHoldRequest(
     val book: Book? = Book(),
     val customer: Customer = Customer(),
-    val days: Int = 1
+    val days: Int = 1,
+    val now: Instant = Instant.now()
 )
 
 fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
 
-    val (book, customer, days) = placeOnHoldRequest
-    var isReserved = false
+    val (inputBook, inputCustomer, days,now) = placeOnHoldRequest
+
+    val book =   inputBook?.copy()
+    val customer = inputCustomer?.copy()
 
     var result:BookOnHoldResult = BookOnHoldRejected
     if (book != null && customer != null) {
@@ -31,17 +34,16 @@ fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
             if (reservationDate == null) {
 
                 customer.holds.add(book.bookId)
-                book.reservationDate = Instant.now()
-                book.reservationEndDate = Instant.now().plus(days.toLong(), ChronoUnit.DAYS)
+                book.reservationDate = now
+                book.reservationEndDate = now.plus(days.toLong(), ChronoUnit.DAYS)
                 book.patronId = customer.patronId
                 result = BookOnHoldApproved(book, customer)
-                isReserved = true
                 addLoyaltyPoints(customer)
             }
         }
     }
 
-    if (canHaveAFreeBook(isReserved, customer)) {
+    if (canHaveAFreeBook(result, customer)) {
         val email = createEmail(customer.points, customer.email)
         when(result) {
             is BookOnHoldApproved -> result.emailToNotify = Optional.of(email)
@@ -65,9 +67,9 @@ private fun createEmail(points: Int, emailAddress: String?): NotificationSender.
 
 
 private fun canHaveAFreeBook(
-    isReserved: Boolean,
+    result: BookOnHoldResult,
     customer: Customer
-) = isReserved && customer.isQualifiesForFreeBook
+) = result is BookOnHoldApproved && customer.isQualifiesForFreeBook
 
 private fun createEmailTitleAndText(points: Int): Pair<String, String> {
     val title = "[REWARD] Free book waiting for you!"
