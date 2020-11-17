@@ -17,6 +17,7 @@
     <properties>
         <java.version>1.8</java.version>
         <kotlin.version>1.4.10</kotlin.version>
+        <kwik.version>0.7.0</kwik.version>
     </properties>
 
     <dependencies>
@@ -56,6 +57,48 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.jcornaz.kwik</groupId>
+            <artifactId>kwik-generator-api-jvm</artifactId>
+            <version>${kwik.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.jcornaz.kwik</groupId>
+            <artifactId>kwik-fuzzer-api-jvm</artifactId>
+            <version>${kwik.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.jcornaz.kwik</groupId>
+            <artifactId>kwik-fuzzer-stdlib-jvm</artifactId>
+            <version>${kwik.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jcornaz.kwik</groupId>
+            <artifactId>kwik-generator-api-common</artifactId>
+            <version>${kwik.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.jcornaz.kwik</groupId>
+            <artifactId>kwik-evaluator-common</artifactId>
+            <version>${kwik.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.jcornaz.kwik</groupId>
+            <artifactId>kwik-evaluator-jvm</artifactId>
+            <version>${kwik.version}</version>
+            <scope>test</scope>
+        </dependency>
+
 
 
     </dependencies>
@@ -112,5 +155,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
 
 </project>

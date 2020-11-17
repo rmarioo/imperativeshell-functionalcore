@@ -1,10 +1,65 @@
 package com.rmarioo.imperativeshell_functionalcore.library
 
+import com.github.jcornaz.kwik.evaluator.forAll
+import com.github.jcornaz.kwik.generator.api.Generator
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import kotlin.random.Random
 
 class FunctionalCoreTest {
+
+    private val customerWithSomeHolds: Generator<PlaceOnHoldRequest> = Generator { rng: Random ->
+
+        val holds = IntRange(0, rng.nextInt(0,100)).toMutableList()
+        PlaceOnHoldRequest(customer = Customer(holds = holds))
+
+    }
+
+    val requestFromDifferentCustomerTypes: Generator<Triple<PlaceOnHoldRequest,PlaceOnHoldRequest,PlaceOnHoldRequest>> =
+         Generator { rng: Random ->
+            val points = rng.nextInt(0, 10000)
+             Triple(PlaceOnHoldRequest(customer = Customer(points = points, type = 2 )),
+                    PlaceOnHoldRequest(customer = Customer(points = points, type = 1)),
+                    PlaceOnHoldRequest(customer = Customer(points = points, type = 0))
+             )
+        }
+
+
+
+    @Test
+    fun `customers can rent a book only if has no more than 5 on hold`() {
+
+        forAll(customerWithSomeHolds) { r: PlaceOnHoldRequest ->
+            val result = placeOnHoldCore(r)
+            if (numberOfBooksOnHold(r) < 5) result is BookOnHoldApproved
+                                       else result is BookOnHoldRejected
+        }
+    }
+
+    @Test
+    fun `customer type 2 earn more points than customer type 1 and customer type 0`() {
+        forAll(requestFromDifferentCustomerTypes) { r: Triple<PlaceOnHoldRequest,PlaceOnHoldRequest,PlaceOnHoldRequest> ->
+            val pointsForCustomerType2 = pointsFor(r.first)
+            val pointsForCustomerType1 = pointsFor(r.second)
+            val pointsForCustomerType0 = pointsFor(r.third)
+
+            pointsForCustomerType2 > pointsForCustomerType1 && pointsForCustomerType1 > pointsForCustomerType0
+        }
+    }
+
+    private fun pointsFor(placeOnHoldRequest: PlaceOnHoldRequest): Int {
+        val bookOnHoldApproved = placeOnHoldCore(placeOnHoldRequest) as BookOnHoldApproved
+        return bookOnHoldApproved.customerToUpdate.points
+    }
+
+    private fun pointsFor2(result: BookOnHoldApproved) =
+        result.customerToUpdate.points
+
+
+    private fun numberOfBooksOnHold(x: PlaceOnHoldRequest) =
+        x.customer.holds.size
+
 
     @Test
     fun `no books`() {
@@ -13,20 +68,9 @@ class FunctionalCoreTest {
 
         val result = placeOnHoldCore(placeOnHoldRequest)
 
-        assertThat(result is BookOnHoldRejected)
+        assertThat(result is BookOnHoldRejected).isTrue()
     }
 
-    @Test
-    fun `max customer holds reached`() {
-
-        val placeOnHoldRequest =
-            PlaceOnHoldRequest(customer = Customer(holds = mutableListOf(1, 2, 3, 4, 5, 6)))
-
-        val result = placeOnHoldCore(placeOnHoldRequest)
-
-
-        assertThat(result is BookOnHoldRejected)
-    }
 
     @Test
     fun `already reserved book`() {
@@ -35,7 +79,7 @@ class FunctionalCoreTest {
 
         val result = placeOnHoldCore(placeOnHoldRequest)
 
-        assertThat(result is BookOnHoldRejected)
+        assertThat(result is BookOnHoldRejected).isTrue()
     }
 
     @Test
@@ -48,7 +92,7 @@ class FunctionalCoreTest {
                 book = Book(reservationDate = null),
                 now = now))
 
-        assertThat(result is BookOnHoldApproved)
+        assertThat(result is BookOnHoldApproved).isTrue()
 
         val bookOnHoldApproved = result as BookOnHoldApproved
 
