@@ -9,23 +9,6 @@ import kotlin.random.Random
 
 class FunctionalCoreTest {
 
-    private val customerWithSomeHolds: Generator<PlaceOnHoldRequest> = Generator { rng: Random ->
-
-        val holds = IntRange(0, rng.nextInt(0,100)).toMutableList()
-        PlaceOnHoldRequest(customer = Customer(holds = holds))
-
-    }
-
-    val requestFromDifferentCustomerTypes: Generator<Triple<PlaceOnHoldRequest,PlaceOnHoldRequest,PlaceOnHoldRequest>> =
-         Generator { rng: Random ->
-            val points = rng.nextInt(0, 10000)
-             Triple(PlaceOnHoldRequest(customer = Customer(points = points, type = 2 )),
-                    PlaceOnHoldRequest(customer = Customer(points = points, type = 1)),
-                    PlaceOnHoldRequest(customer = Customer(points = points, type = 0))
-             )
-        }
-
-
 
     @Test
     fun `customers can rent a book only if has no more than 5 on hold`() {
@@ -48,13 +31,29 @@ class FunctionalCoreTest {
         }
     }
 
+    private val customerWithSomeHolds: Generator<PlaceOnHoldRequest> = Generator { rng: Random ->
+
+        val holds = IntRange(0, rng.nextInt(0,100)).toMutableList()
+        PlaceOnHoldRequest(customer = Customer(holds = holds))
+
+    }
+
+    val requestFromDifferentCustomerTypes: Generator<Triple<PlaceOnHoldRequest,PlaceOnHoldRequest,PlaceOnHoldRequest>> =
+        Generator { rng: Random ->
+            val points = rng.nextInt(0, 10000)
+            Triple(PlaceOnHoldRequest(customer = Customer(points = points, type = 2 )),
+                   PlaceOnHoldRequest(customer = Customer(points = points, type = 1)),
+                   PlaceOnHoldRequest(customer = Customer(points = points, type = 0))
+            )
+        }
+
+
+
+
     private fun pointsFor(placeOnHoldRequest: PlaceOnHoldRequest): Int {
         val bookOnHoldApproved = placeOnHoldCore(placeOnHoldRequest) as BookOnHoldApproved
         return bookOnHoldApproved.customerToUpdate.points
     }
-
-    private fun pointsFor2(result: BookOnHoldApproved) =
-        result.customerToUpdate.points
 
 
     private fun numberOfBooksOnHold(x: PlaceOnHoldRequest) =
