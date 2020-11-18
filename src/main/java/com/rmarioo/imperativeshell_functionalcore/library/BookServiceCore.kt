@@ -1,5 +1,7 @@
 package com.rmarioo.imperativeshell_functionalcore.library
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Optional
@@ -20,12 +22,10 @@ data class PlaceOnHoldRequest(
     val now: Instant = Instant.now()
 )
 
-fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
+fun placeOnHoldCore(placeOnHoldRequestInput: PlaceOnHoldRequest): BookOnHoldResult {
 
-    val (inputBook, inputCustomer, days,now) = placeOnHoldRequest
-
-    val book =   inputBook?.copy()
-    val customer = inputCustomer?.copy()
+    val placeOnHoldRequest = placeOnHoldRequestInput.deepCopy()
+    val (book, customer, days,now) = placeOnHoldRequest
 
     var result:BookOnHoldResult = BookOnHoldRejected
     if (book != null && customer != null) {
@@ -53,6 +53,11 @@ fun placeOnHoldCore(placeOnHoldRequest: PlaceOnHoldRequest): BookOnHoldResult {
     }
 
     return result
+}
+
+private fun PlaceOnHoldRequest.deepCopy(): PlaceOnHoldRequest {
+    val JSON = GsonBuilder().serializeNulls().create().toJson(this)
+    return Gson().fromJson(JSON, PlaceOnHoldRequest::class.java)
 }
 
 private fun createEmail(points: Int, emailAddress: String?): NotificationSender.Email {

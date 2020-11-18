@@ -59,6 +59,9 @@ class FunctionalCoreTest {
     private fun numberOfBooksOnHold(x: PlaceOnHoldRequest) =
         x.customer.holds.size
 
+    private fun booksOnHold(x: PlaceOnHoldRequest): MutableList<Int> =
+        x.customer.holds
+
 
     @Test
     fun `no books`() {
@@ -96,7 +99,7 @@ class FunctionalCoreTest {
         val bookOnHoldApproved = result as BookOnHoldApproved
 
         assertThat(bookOnHoldApproved.bookToUpdate.reservationDate).isEqualTo(now)
-        assertThat(bookOnHoldApproved.customerToUpdate).isEqualTo(inputCustomer.copy(points = 1))
+        assertThat(bookOnHoldApproved.customerToUpdate).isEqualTo(Customer(points = 1,holds = mutableListOf(0)))
         assertThat(bookOnHoldApproved.emailToNotify).`as`("notification not sent").isNotPresent
     }
 
