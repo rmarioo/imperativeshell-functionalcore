@@ -55,9 +55,11 @@ fun placeOnHoldCore(placeOnHoldRequestInput: PlaceOnHoldRequest): BookOnHoldResu
     return result
 }
 
+val gson = GsonBuilder().serializeNulls().create()
+
 private fun PlaceOnHoldRequest.deepCopy(): PlaceOnHoldRequest {
-    val JSON = GsonBuilder().serializeNulls().create().toJson(this)
-    return Gson().fromJson(JSON, PlaceOnHoldRequest::class.java)
+    val JSON = gson.toJson(this)
+    return gson.fromJson(JSON, PlaceOnHoldRequest::class.java)
 }
 
 private fun createEmail(points: Int, emailAddress: String?): NotificationSender.Email {
