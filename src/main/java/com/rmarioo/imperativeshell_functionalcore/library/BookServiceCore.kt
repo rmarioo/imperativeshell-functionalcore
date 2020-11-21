@@ -14,6 +14,7 @@ data class BookOnHoldApproved(val bookToUpdate: Book, val customerToUpdate: Cust
 }
 object BookOnHoldRejected : BookOnHoldResult()
 
+const val MAX_HOLDS_PER_CUSTOMER = 5
 
 data class PlaceOnHoldRequest(
     val book: Book? = Book(),
@@ -29,7 +30,7 @@ fun placeOnHoldCore(placeOnHoldRequestInput: PlaceOnHoldRequest): BookOnHoldResu
 
     var result:BookOnHoldResult = BookOnHoldRejected
     if (book != null && customer != null) {
-        if (customer.holds.size < 5) {
+        if (customer.holds.size < MAX_HOLDS_PER_CUSTOMER) {
             val reservationDate = book.reservationDate
             if (reservationDate == null) {
 
@@ -55,11 +56,11 @@ fun placeOnHoldCore(placeOnHoldRequestInput: PlaceOnHoldRequest): BookOnHoldResu
     return result
 }
 
-val gson = GsonBuilder().serializeNulls().create()
+val gson: Gson = GsonBuilder().serializeNulls().create()
 
 private fun PlaceOnHoldRequest.deepCopy(): PlaceOnHoldRequest {
-    val JSON = gson.toJson(this)
-    return gson.fromJson(JSON, PlaceOnHoldRequest::class.java)
+    val str = gson.toJson(this)
+    return gson.fromJson(str, PlaceOnHoldRequest::class.java)
 }
 
 private fun createEmail(points: Int, emailAddress: String?): NotificationSender.Email {

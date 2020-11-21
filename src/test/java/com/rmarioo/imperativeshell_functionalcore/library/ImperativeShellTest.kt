@@ -33,14 +33,16 @@ class BookServiceShellTest {
 
     }
 }
-    class SpyCustomerDao(val customerFromDatabase: Customer,
-                         var updatedCustomers: MutableList<Customer?> = mutableListOf()) : CustomerDAO() {
+    class SpyCustomerDao(
+        private val customerFromDatabase: Customer,
+        var updatedCustomers: MutableList<Customer?> = mutableListOf()) : CustomerDAO() {
         override fun update(customer: Customer?) { updatedCustomers.add(customer)}
         override fun getCustomerFromDatabase(customerid: Int): Customer = customerFromDatabase
     }
 
-    class SpyBookDao(val bookFromDatabase: Book,
-                     var updatedBooks: MutableList<Book?> = mutableListOf()) : BookDAO() {
+    class SpyBookDao(
+        private val bookFromDatabase: Book,
+        var updatedBooks: MutableList<Book?> = mutableListOf()) : BookDAO() {
 
         override fun update(book: Book?) { updatedBooks.add(book)}
         override fun  getBookFromDatabase(bookId: Int): Book { return bookFromDatabase }

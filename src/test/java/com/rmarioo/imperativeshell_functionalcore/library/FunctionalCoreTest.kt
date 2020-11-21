@@ -35,7 +35,7 @@ class FunctionalCoreTest {
 
     }
 
-    val requestFromDifferentCustomerTypes: Generator<MultipleRequests> =
+    private val requestFromDifferentCustomerTypes: Generator<MultipleRequests> =
         Generator { rng: Random ->
             val points = rng.nextInt(0, 10000)
             MultipleRequests(PlaceOnHoldRequest(customer = Customer(points = points, type = 2 )),
@@ -58,9 +58,6 @@ class FunctionalCoreTest {
     private fun numberOfBooksOnHold(x: PlaceOnHoldRequest) =
         x.customer.holds.size
 
-    private fun booksOnHold(x: PlaceOnHoldRequest): MutableList<Int> =
-        x.customer.holds
-
 
     @Test
     fun `no books`() {
@@ -69,7 +66,7 @@ class FunctionalCoreTest {
 
         val result = placeOnHoldCore(placeOnHoldRequest)
 
-        assertThat(result is BookOnHoldRejected).isTrue()
+        assertThat(result is BookOnHoldRejected).isTrue
     }
 
 
@@ -80,7 +77,7 @@ class FunctionalCoreTest {
 
         val result = placeOnHoldCore(placeOnHoldRequest)
 
-        assertThat(result is BookOnHoldRejected).isTrue()
+        assertThat(result is BookOnHoldRejected).isTrue
     }
 
     @Test
@@ -93,7 +90,7 @@ class FunctionalCoreTest {
                 book = Book(reservationDate = null),
                 now = now))
 
-        assertThat(result is BookOnHoldApproved).isTrue()
+        assertThat(result is BookOnHoldApproved).isTrue
 
         val bookOnHoldApproved = result as BookOnHoldApproved
 
