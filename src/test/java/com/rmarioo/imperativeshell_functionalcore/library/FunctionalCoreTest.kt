@@ -13,7 +13,7 @@ class FunctionalCoreTest {
     @Test
     fun `customers can rent a book only if has no more than 5 on hold`() {
 
-        forAll(customerWithSomeHolds) { r: PlaceOnHoldRequest ->
+        forAll(randomRequests) { r: PlaceOnHoldRequest ->
             if (numberOfBooksOnHold(r) < 5) placeOnHoldCore(r) is BookOnHoldApproved
                                        else placeOnHoldCore(r) is BookOnHoldRejected
         }
@@ -21,32 +21,20 @@ class FunctionalCoreTest {
 
     @Test
     fun `customer type 2 earn more points than customer type 1 and customer type 0`() {
-        forAll(requestFromDifferentCustomerTypes) { requests: MultipleRequests ->
 
-            pointsFor(requests.customerType2) > pointsFor(requests.customerType1) &&
-            pointsFor(requests.customerType1) > pointsFor(requests.customerType0)
+        forAll(randomRequests) { requests: PlaceOnHoldRequest ->
+
+            pointsFor(requests.forCustomer(2)) > pointsFor(requests.forCustomer(1)) &&
+            pointsFor(requests.forCustomer(1)) > pointsFor(requests.forCustomer(0))
         }
     }
 
-    private val customerWithSomeHolds: Generator<PlaceOnHoldRequest> = Generator { rng: Random ->
+    private val randomRequests: Generator<PlaceOnHoldRequest> = Generator { rng: Random ->
 
         val holds = IntRange(0, rng.nextInt(0,100)).toMutableList()
         PlaceOnHoldRequest(customer = Customer(holds = holds))
 
     }
-
-    private val requestFromDifferentCustomerTypes: Generator<MultipleRequests> =
-        Generator { rng: Random ->
-            val points = rng.nextInt(0, 10000)
-            MultipleRequests(PlaceOnHoldRequest(customer = Customer(points = points, type = 2 )),
-                   PlaceOnHoldRequest(customer = Customer(points = points, type = 1)),
-                   PlaceOnHoldRequest(customer = Customer(points = points, type = 0))
-            )
-        }
-
-    data class MultipleRequests(val customerType2: PlaceOnHoldRequest,
-                                val customerType1: PlaceOnHoldRequest,
-                                val customerType0: PlaceOnHoldRequest)
 
 
     private fun pointsFor(placeOnHoldRequest: PlaceOnHoldRequest): Int {
@@ -125,3 +113,6 @@ class FunctionalCoreTest {
         assertThat(bookOnHoldApproved.emailToNotify).`as`("notification not sent").isPresent
     }
 }
+
+private fun PlaceOnHoldRequest.forCustomer(customerType: Int): PlaceOnHoldRequest =
+    this.copy(customer = Customer(this.customer.points, type = customerType))
