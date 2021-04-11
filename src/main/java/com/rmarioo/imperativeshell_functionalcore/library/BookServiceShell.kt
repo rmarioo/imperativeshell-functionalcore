@@ -11,13 +11,13 @@ class BookServiceShell(
     private val bookDAO: BookDAO,
     private val customerDAO: CustomerDAO,
     private val emailService: NotificationSender,
-    private val coreFunctionWithEffectsDescription: (PlaceOnHoldRequest) -> BookOnHoldResult
+    private val rentABook: (PlaceOnHoldRequest) -> BookOnHoldResult
 ) {
     fun placeOnHoldShell(bookId: Int, customerId: Int, days: Int): Boolean {
         val book = bookDAO.getBookFromDatabase(bookId)
         val customer = customerDAO.getCustomerFromDatabase(customerId)
 
-        val result: BookOnHoldResult = coreFunctionWithEffectsDescription(PlaceOnHoldRequest(book, customer, days))
+        val result: BookOnHoldResult = rentABook(PlaceOnHoldRequest(book, customer, days))
 
         return when(result) {
             is BookOnHoldApproved -> { executeSideEffects(result); true }
