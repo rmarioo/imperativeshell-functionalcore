@@ -1,6 +1,8 @@
 package com.rmarioo.imperativeshell_functionalcore.library
 
 import com.rmarioo.imperativeshell_functionalcore.library.NotificationSender.Email
+import com.rmarioo.imperativeshell_functionalcore.library.core.BookOnHoldApproved
+import com.rmarioo.imperativeshell_functionalcore.library.core.PlaceOnHoldRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

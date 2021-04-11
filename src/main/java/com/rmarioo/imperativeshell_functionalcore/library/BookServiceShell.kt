@@ -1,5 +1,9 @@
 package com.rmarioo.imperativeshell_functionalcore.library
 
+import com.rmarioo.imperativeshell_functionalcore.library.core.BookOnHoldApproved
+import com.rmarioo.imperativeshell_functionalcore.library.core.BookOnHoldRejected
+import com.rmarioo.imperativeshell_functionalcore.library.core.BookOnHoldResult
+import com.rmarioo.imperativeshell_functionalcore.library.core.PlaceOnHoldRequest
 import org.springframework.stereotype.Service
 
 @Service

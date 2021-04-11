@@ -2,6 +2,10 @@ package com.rmarioo.imperativeshell_functionalcore.library
 
 import com.github.jcornaz.kwik.evaluator.forAll
 import com.github.jcornaz.kwik.generator.api.Generator
+import com.rmarioo.imperativeshell_functionalcore.library.core.BookOnHoldApproved
+import com.rmarioo.imperativeshell_functionalcore.library.core.BookOnHoldRejected
+import com.rmarioo.imperativeshell_functionalcore.library.core.PlaceOnHoldRequest
+import com.rmarioo.imperativeshell_functionalcore.library.core.placeOnHoldCore
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -29,30 +33,11 @@ class FunctionalCoreTest {
         }
     }
 
-    private val randomRequests: Generator<PlaceOnHoldRequest> = Generator { rng: Random ->
-
-        val holds = IntRange(0, rng.nextInt(0,100)).toMutableList()
-        PlaceOnHoldRequest(customer = Customer(holds = holds))
-
-    }
-
-
-    private fun pointsFor(placeOnHoldRequest: PlaceOnHoldRequest): Int {
-        val bookOnHoldApproved = placeOnHoldCore(placeOnHoldRequest) as BookOnHoldApproved
-        return bookOnHoldApproved.customerToUpdate.points
-    }
-
-
-    private fun numberOfBooksOnHold(x: PlaceOnHoldRequest) =
-        x.customer.holds.size
-
 
     @Test
     fun `no books`() {
 
-        val placeOnHoldRequest = PlaceOnHoldRequest(book = null)
-
-        val result = placeOnHoldCore(placeOnHoldRequest)
+        val result = placeOnHoldCore(PlaceOnHoldRequest(book = null))
 
         assertThat(result is BookOnHoldRejected).isTrue
     }
@@ -61,9 +46,8 @@ class FunctionalCoreTest {
     @Test
     fun `already reserved book`() {
 
-        val placeOnHoldRequest = PlaceOnHoldRequest(book = Book(reservationDate = Instant.now()))
-
-        val result = placeOnHoldCore(placeOnHoldRequest)
+        val result =
+            placeOnHoldCore(PlaceOnHoldRequest(book = Book(reservationDate = Instant.now())))
 
         assertThat(result is BookOnHoldRejected).isTrue
     }
@@ -74,9 +58,11 @@ class FunctionalCoreTest {
         val now = Instant.now()
         val inputCustomer = Customer()
         val result =
-            placeOnHoldCore(PlaceOnHoldRequest(customer = inputCustomer,
+            placeOnHoldCore(
+                PlaceOnHoldRequest(customer = inputCustomer,
                 book = Book(reservationDate = null),
-                now = now))
+                now = now)
+            )
 
         assertThat(result is BookOnHoldApproved).isTrue
 
@@ -112,6 +98,25 @@ class FunctionalCoreTest {
         val bookOnHoldApproved = result as BookOnHoldApproved
         assertThat(bookOnHoldApproved.emailToNotify).`as`("notification not sent").isPresent
     }
+
+    private val randomRequests: Generator<PlaceOnHoldRequest> = Generator { rng: Random ->
+
+        val holds = IntRange(0, rng.nextInt(0,100)).toMutableList()
+        PlaceOnHoldRequest(customer = Customer(holds = holds))
+
+    }
+
+
+    private fun pointsFor(placeOnHoldRequest: PlaceOnHoldRequest): Int {
+        val bookOnHoldApproved = placeOnHoldCore(placeOnHoldRequest) as BookOnHoldApproved
+        return bookOnHoldApproved.customerToUpdate.points
+    }
+
+
+    private fun numberOfBooksOnHold(x: PlaceOnHoldRequest) =
+        x.customer.holds.size
+
+
 }
 
 private fun PlaceOnHoldRequest.forCustomer(customerType: Int): PlaceOnHoldRequest =

@@ -1,34 +1,22 @@
-package com.rmarioo.imperativeshell_functionalcore.library
+package com.rmarioo.imperativeshell_functionalcore.library.core
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import java.time.Instant
+import com.rmarioo.imperativeshell_functionalcore.library.Customer
+import com.rmarioo.imperativeshell_functionalcore.library.NotificationSender
 import java.time.temporal.ChronoUnit
 import java.util.Optional
 
 
-sealed class BookOnHoldResult
-
-data class BookOnHoldApproved(val bookToUpdate: Book, val customerToUpdate: Customer) : BookOnHoldResult() {
-    var emailToNotify: Optional<NotificationSender.Email> = Optional.empty()
-}
-object BookOnHoldRejected : BookOnHoldResult()
 
 const val MAX_HOLDS_PER_CUSTOMER = 5
-
-data class PlaceOnHoldRequest(
-    val book: Book? = Book(),
-    val customer: Customer = Customer(),
-    val days: Int = 1,
-    val now: Instant = Instant.now()
-)
 
 fun placeOnHoldCore(placeOnHoldRequestInput: PlaceOnHoldRequest): BookOnHoldResult {
 
     val placeOnHoldRequest = placeOnHoldRequestInput.deepCopy()
     val (book, customer, days,now) = placeOnHoldRequest
 
-    var result:BookOnHoldResult = BookOnHoldRejected
+    var result: BookOnHoldResult = BookOnHoldRejected
     if (book != null && customer != null) {
         if (customer.holds.size < MAX_HOLDS_PER_CUSTOMER) {
             val reservationDate = book.reservationDate
